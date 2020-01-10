@@ -17,7 +17,7 @@ func main() {
 			panic(err)
 		}
 
-		thumb, err := imageupload.ThumbnailPNG(img, 300, 300)
+		thumb, err := img.ThumbnailPNG(300, 300)
 
 		if err != nil {
 			panic(err)
