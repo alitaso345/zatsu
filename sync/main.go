@@ -1,30 +1,47 @@
 package main
 
 import (
-	"bytes"
-	"io"
-	"os"
+	"fmt"
 	"sync"
-	"time"
 )
 
-var bufPool = sync.Pool{
-	New: func() interface{} {
-		return new(bytes.Buffer)
-	}}
-
-func Log(w io.Writer, key, val string) {
-	b := bufPool.Get().(*bytes.Buffer)
-	b.Reset()
-	b.WriteString(time.Now().UTC().Format(time.RFC3339))
-	b.WriteByte(' ')
-	b.WriteString(key)
-	b.WriteByte('=')
-	b.WriteString(val)
-	w.Write(b.Bytes())
-	bufPool.Put(b)
-}
-
 func main() {
-	Log(os.Stdout, "path", "/search?q=flowers")
+	var count int
+	var lock sync.Mutex
+
+	increment := func() {
+		lock.Lock()
+		defer lock.Unlock()
+		count++
+		fmt.Printf("Incrementing: %d\n", count)
+	}
+
+	decrement := func() {
+		lock.Lock()
+		defer lock.Unlock()
+		count--
+		fmt.Printf("Decrementing: %d\n", count)
+	}
+
+	var arithmetic sync.WaitGroup
+	for i := 0; i <= 5; i++ {
+		arithmetic.Add(1)
+		go func() {
+			defer arithmetic.Done()
+			increment()
+		}()
+	}
+
+	for i := 0; i <= 5; i++ {
+		arithmetic.Add(1)
+		go func() {
+			defer arithmetic.Done()
+			decrement()
+		}()
+	}
+
+	arithmetic.Wait()
+
+	fmt.Println("Arithmetic complete.")
+
 }
