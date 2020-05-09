@@ -3,45 +3,30 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 func main() {
-	var count int
-	var lock sync.Mutex
+	c := sync.NewCond(&sync.Mutex{})
+	queue := make([]interface{}, 0, 10)
 
-	increment := func() {
-		lock.Lock()
-		defer lock.Unlock()
-		count++
-		fmt.Printf("Incrementing: %d\n", count)
+	removeFromQueue := func(delay time.Duration) {
+		time.Sleep(delay)
+		c.L.Lock()
+		queue = queue[1:]
+		fmt.Println("Removed from queue")
+		c.L.Unlock()
+		c.Signal()
 	}
 
-	decrement := func() {
-		lock.Lock()
-		defer lock.Unlock()
-		count--
-		fmt.Printf("Decrementing: %d\n", count)
+	for i := 0; i < 10; i++ {
+		c.L.Lock()
+		for len(queue) == 2 {
+			c.Wait()
+		}
+		fmt.Println("Adding to queue")
+		queue = append(queue, struct{}{})
+		go removeFromQueue(1 * time.Second)
+		c.L.Unlock()
 	}
-
-	var arithmetic sync.WaitGroup
-	for i := 0; i <= 5; i++ {
-		arithmetic.Add(1)
-		go func() {
-			defer arithmetic.Done()
-			increment()
-		}()
-	}
-
-	for i := 0; i <= 5; i++ {
-		arithmetic.Add(1)
-		go func() {
-			defer arithmetic.Done()
-			decrement()
-		}()
-	}
-
-	arithmetic.Wait()
-
-	fmt.Println("Arithmetic complete.")
-
 }
