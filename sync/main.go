@@ -1,29 +1,30 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
+	"io"
+	"os"
 	"sync"
+	"time"
 )
 
+var bufPool = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	}}
+
+func Log(w io.Writer, key, val string) {
+	b := bufPool.Get().(*bytes.Buffer)
+	b.Reset()
+	b.WriteString(time.Now().UTC().Format(time.RFC3339))
+	b.WriteByte(' ')
+	b.WriteString(key)
+	b.WriteByte('=')
+	b.WriteString(val)
+	w.Write(b.Bytes())
+	bufPool.Put(b)
+}
+
 func main() {
-	var once sync.Once
-	onceBody := func() {
-		fmt.Println("Only once")
-	}
-	done := make(chan bool)
-	for i := 0; i < 10; i++ {
-		go func() {
-			once.Do(onceBody)
-			done <- true
-		}()
-	}
-	for i := 0; i < 10; i++ {
-		<-done
-	}
-	twiceBody := func() {
-		fmt.Println("twice")
-	}
-	// 異なる値を渡されたとしても、同一のインスタンスを使っている限り初回の呼び出しのみが実行される
-	// つまり以下の行を追加しても、文字列は表示されない
-	once.Do(twiceBody)
+	Log(os.Stdout, "path", "/search?q=flowers")
 }
