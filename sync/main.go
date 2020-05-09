@@ -6,26 +6,22 @@ import (
 	"time"
 )
 
-func parallel(wg *sync.WaitGroup, m *sync.Mutex) {
-	m.Lock() // mというMutexインスタンスで保護されたクリティカルセクションの専有を要求
-	defer m.Unlock()
-
-	fmt.Println("博")
-	time.Sleep(100 * time.Millisecond)
-	fmt.Println("多")
-	time.Sleep(100 * time.Millisecond)
-	fmt.Println("の")
-	time.Sleep(100 * time.Millisecond)
-	fmt.Println("塩")
-	wg.Done()
-}
-
 func main() {
-	wg := new(sync.WaitGroup)
-	m := new(sync.Mutex)
-	for i := 0; i < 3; i++ {
-		wg.Add(1)
-		go parallel(wg, m)
+	l := new(sync.Mutex)
+	c := sync.NewCond(l)
+	for i := 0; i < 10; i++ {
+		go func(i int) {
+			fmt.Printf("waiting %d\n", i)
+			l.Lock()
+			defer l.Unlock()
+			c.Wait()
+			fmt.Printf("go %d\n", i)
+		}(i)
 	}
-	wg.Wait()
+
+	for i := 0; i < 10; i++ {
+		time.Sleep(1 * time.Second)
+		c.Signal()
+	}
+	time.Sleep(1 * time.Second)
 }
