@@ -3,43 +3,29 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
+func parallel(wg *sync.WaitGroup, m *sync.Mutex) {
+	m.Lock() // mというMutexインスタンスで保護されたクリティカルセクションの専有を要求
+	defer m.Unlock()
+
+	fmt.Println("博")
+	time.Sleep(100 * time.Millisecond)
+	fmt.Println("多")
+	time.Sleep(100 * time.Millisecond)
+	fmt.Println("の")
+	time.Sleep(100 * time.Millisecond)
+	fmt.Println("塩")
+	wg.Done()
+}
+
 func main() {
-	type Button struct {
-		Clicked *sync.Cond
+	wg := new(sync.WaitGroup)
+	m := new(sync.Mutex)
+	for i := 0; i < 3; i++ {
+		wg.Add(1)
+		go parallel(wg, m)
 	}
-
-	button := Button{Clicked: sync.NewCond(&sync.Mutex{})}
-
-	subscribe := func(c *sync.Cond, fn func()) {
-		var goroutineRunning sync.WaitGroup
-		goroutineRunning.Add(1)
-		go func() {
-			goroutineRunning.Done()
-			c.L.Lock()
-			defer c.L.Unlock()
-			c.Wait()
-			fn()
-		}()
-		goroutineRunning.Wait()
-	}
-
-	var clickRegisterd sync.WaitGroup
-	clickRegisterd.Add(3)
-	subscribe(button.Clicked, func() {
-		fmt.Println("Maximizing window.")
-		clickRegisterd.Done()
-	})
-	subscribe(button.Clicked, func() {
-		fmt.Println("Display annoying dialog box")
-		clickRegisterd.Done()
-	})
-	subscribe(button.Clicked, func() {
-		fmt.Println("Mouse clicked")
-		clickRegisterd.Done()
-	})
-
-	button.Clicked.Broadcast()
-	clickRegisterd.Wait()
+	wg.Wait()
 }
