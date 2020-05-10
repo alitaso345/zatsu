@@ -2,26 +2,20 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"sync"
-	"time"
 )
 
 func main() {
-	l := new(sync.Mutex)
-	c := sync.NewCond(l)
-	for i := 0; i < 10; i++ {
-		go func(i int) {
-			fmt.Printf("waiting %d\n", i)
-			l.Lock()
-			defer l.Unlock()
-			c.Wait()
-			fmt.Printf("go %d\n", i)
-		}(i)
-	}
+	var m sync.Map
 
-	for i := 0; i < 10; i++ {
-		time.Sleep(1 * time.Second)
-		c.Signal()
+	go func() {
+		for {
+			m.Store(rand.Intn(100000), struct{}{})
+		}
+	}()
+
+	for {
+		fmt.Println(m.Load(rand.Intn(100000)))
 	}
-	time.Sleep(1 * time.Second)
 }
