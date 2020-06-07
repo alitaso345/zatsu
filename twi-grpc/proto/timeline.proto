@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = ".;proto";
+
 service Timeline {
   rpc Connect (Room) returns (stream Comment) {};
 }
@@ -11,7 +13,9 @@ message Room {
 message Comment {
   string name = 1;
   string message = 2;
-  enum PlatformType {
-    TWITTER = 0;
-  }
+  PlatformType platform_type = 3;
+}
+
+enum PlatformType {
+  TWITTER = 0;
 }
