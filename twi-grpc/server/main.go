@@ -45,7 +45,7 @@ func (s *timelineService) Connect(req *pb.Room, stream pb.Timeline_ConnectServer
 			err := stream.Send(&pb.Comment{Name: tweet.User.ScreenName, Message: tweet.Text, PlatformType: pb.PlatformType_TWITTER})
 			if err != nil {
 				log.Println("twitter stream error")
-				close(twitchDone)
+				close(twitterDone)
 				return err
 			}
 		case chat := <-twitchCh:
