@@ -1,9 +1,12 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
+
+	irc "github.com/thoj/go-ircevent"
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
@@ -13,6 +16,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+const serverssl = "irc.chat.twitch.tv:6697"
+
 type TwitterConfig struct {
 	ConsumerKey       string `envconfig:"CONSUMER_KEY"`
 	ConsumerSecret    string `envconfig:"CONSUMER_SECRET"`
@@ -20,15 +25,64 @@ type TwitterConfig struct {
 	AccessTokenSecret string `envconfig:"ACCESS_TOKEN_SECRET"`
 }
 
+type TwitchConfig struct {
+	Nick     string
+	Password string
+}
+
 type timelineService struct{}
 
 func (s *timelineService) Connect(req *pb.Room, stream pb.Timeline_ConnectServer) error {
 	done := make(chan interface{})
-	tc := generateTwitchCh(done, req)
+	twitterCh := generateTwitchCh(done, req)
+	twitchCh := func(done <-chan interface{}) <-chan *irc.Event {
+		ch := make(chan *irc.Event)
+		go func() {
+			defer func() {
+				log.Println("close twitch ch")
+				close(ch)
+			}()
+
+			var config TwitchConfig
+			envconfig.Process("TWITCH", &config)
+
+			nick := config.Nick
+			con := irc.IRC(nick, nick)
+
+			con.Password = config.Password
+			con.UseTLS = true
+			con.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+			con.AddCallback("001", func(e *irc.Event) { con.Join(twitchChannel) })
+			con.AddCallback("PRIVMSG", func(e *irc.Event) {
+				fmt.Println(e.Message() + ": " + twitchChannel)
+			})
+			err := con.Connect(serverssl)
+			if err != nil {
+				log.Fatalf("can not connect to twitch: %s", err)
+			}
+			defer con.Disconnect()
+
+			go con.Loop()
+			<-done
+			return
+		}()
+
+		return ch
+	}
+
+	tc := twitchCh(done)
 	for {
 		select {
-		case msg := <-tc:
+		case msg := <-twitterCh:
 			err := stream.Send(&pb.Comment{Name: msg.User.ScreenName, Message: msg.Text, PlatformType: pb.PlatformType_TWITTER})
+			if err != nil {
+				log.Println("sending error")
+				close(done)
+				return err
+			}
+		case msg := <-tc:
+			err := stream.Send(&pb.Comment{Name: msg.User, Message: msg.Arguments[1], PlatformType: pb.PlatformType_TWITTER})
 			if err != nil {
 				log.Println("sending error")
 				close(done)
