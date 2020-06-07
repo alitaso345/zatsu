@@ -33,66 +33,33 @@ type TwitchConfig struct {
 type timelineService struct{}
 
 func (s *timelineService) Connect(req *pb.Room, stream pb.Timeline_ConnectServer) error {
-	done := make(chan interface{})
-	twitterCh := generateTwitchCh(done, req)
-	twitchCh := func(done <-chan interface{}) <-chan *irc.Event {
-		ch := make(chan *irc.Event)
-		go func() {
-			defer func() {
-				log.Println("close twitch ch")
-				close(ch)
-			}()
+	twitterDone := make(chan interface{})
+	twitterCh := generateTwitterCh(twitterDone, req)
 
-			var config TwitchConfig
-			envconfig.Process("TWITCH", &config)
+	twitchDone := make(chan interface{})
+	twitchCh := generateTwitchCh(twitchDone, req)
 
-			nick := config.Nick
-			con := irc.IRC(nick, nick)
-
-			con.Password = config.Password
-			con.UseTLS = true
-			con.TLSConfig = &tls.Config{InsecureSkipVerify: true}
-
-			con.AddCallback("001", func(e *irc.Event) { con.Join(twitchChannel) })
-			con.AddCallback("PRIVMSG", func(e *irc.Event) {
-				fmt.Println(e.Message() + ": " + twitchChannel)
-			})
-			err := con.Connect(serverssl)
-			if err != nil {
-				log.Fatalf("can not connect to twitch: %s", err)
-			}
-			defer con.Disconnect()
-
-			go con.Loop()
-			<-done
-			return
-		}()
-
-		return ch
-	}
-
-	tc := twitchCh(done)
 	for {
 		select {
-		case msg := <-twitterCh:
-			err := stream.Send(&pb.Comment{Name: msg.User.ScreenName, Message: msg.Text, PlatformType: pb.PlatformType_TWITTER})
+		case tweet := <-twitterCh:
+			err := stream.Send(&pb.Comment{Name: tweet.User.ScreenName, Message: tweet.Text, PlatformType: pb.PlatformType_TWITTER})
 			if err != nil {
-				log.Println("sending error")
-				close(done)
+				log.Println("twitter stream error")
+				close(twitchDone)
 				return err
 			}
-		case msg := <-tc:
-			err := stream.Send(&pb.Comment{Name: msg.User, Message: msg.Arguments[1], PlatformType: pb.PlatformType_TWITTER})
+		case chat := <-twitchCh:
+			err := stream.Send(&pb.Comment{Name: chat.User, Message: chat.Arguments[1], PlatformType: pb.PlatformType_TWITCH})
 			if err != nil {
-				log.Println("sending error")
-				close(done)
+				log.Println("twitch stream error")
+				close(twitchDone)
 				return err
 			}
 		}
 	}
 }
 
-func generateTwitchCh(done <-chan interface{}, req *pb.Room) <-chan *twitter.Tweet {
+func generateTwitterCh(done <-chan interface{}, req *pb.Room) <-chan *twitter.Tweet {
 	ch := make(chan *twitter.Tweet)
 	go func() {
 		defer func() {
@@ -124,6 +91,43 @@ func generateTwitchCh(done <-chan interface{}, req *pb.Room) <-chan *twitter.Twe
 		defer twitterStream.Stop()
 
 		go demux.HandleChan(twitterStream.Messages)
+		<-done
+		return
+	}()
+
+	return ch
+}
+
+func generateTwitchCh(done <-chan interface{}, req *pb.Room) <-chan *irc.Event {
+	ch := make(chan *irc.Event)
+	go func() {
+		defer func() {
+			log.Println("close twitch ch")
+			close(ch)
+		}()
+
+		var config TwitchConfig
+		envconfig.Process("TWITCH", &config)
+
+		nick := config.Nick
+		con := irc.IRC(nick, nick)
+
+		con.Password = config.Password
+		con.UseTLS = true
+		con.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+		con.AddCallback("001", func(e *irc.Event) { con.Join(req.ChannelName) })
+		con.AddCallback("PRIVMSG", func(e *irc.Event) {
+			fmt.Println(fmt.Sprintf("%s\n", e.Message()))
+			ch <- e
+		})
+		err := con.Connect(serverssl)
+		if err != nil {
+			log.Fatalf("can not connect to twitch: %s", err)
+		}
+		defer con.Disconnect()
+
+		go con.Loop()
 		<-done
 		return
 	}()

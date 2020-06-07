@@ -22,7 +22,8 @@ func main() {
 
 	client := pb.NewTimelineClient(conn)
 	hashTag := os.Args[1]
-	stream, err := client.Connect(context.Background(), &pb.Room{HashTag: hashTag})
+	channelName := os.Args[2]
+	stream, err := client.Connect(context.Background(), &pb.Room{HashTag: hashTag, ChannelName: channelName})
 	if err != nil {
 		log.Fatalf("failed to connect: %s", err)
 	}
