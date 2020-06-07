@@ -18,4 +18,5 @@ message Comment {
 
 enum PlatformType {
   TWITTER = 0;
+  TWITCH = 1;
 }
