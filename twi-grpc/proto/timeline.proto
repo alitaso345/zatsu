@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+service Timeline {
+  rpc Connect (Room) returns (stream Comment) {};
+}
+
+message Room {
+  string hash_tag = 1;
+}
+
+message Comment {
+  string name = 1;
+  string message = 2;
+  enum PlatformType {
+    TWITTER = 0;
+  }
+}
