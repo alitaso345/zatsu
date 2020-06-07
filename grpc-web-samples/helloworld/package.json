@@ -1,0 +1,9 @@
+{
+  "name": "helloworld",
+  "version": "0.1.0",
+  "main": "server.js",
+  "license": "MIT",
+  "devDependencies": {
+    "grpc": "^1.24.3"
+  }
+}
