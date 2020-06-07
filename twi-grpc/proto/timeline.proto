@@ -8,6 +8,7 @@ service Timeline {
 
 message Room {
   string hash_tag = 1;
+  string channel_name = 2;
 }
 
 message Comment {
