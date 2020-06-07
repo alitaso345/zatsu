@@ -23,47 +23,8 @@ type TwitterConfig struct {
 type timelineService struct{}
 
 func (s *timelineService) Connect(req *pb.Room, stream pb.Timeline_ConnectServer) error {
-	twitterCh := func(done <-chan interface{}) <-chan *twitter.Tweet {
-		ch := make(chan *twitter.Tweet)
-		go func() {
-			defer func() {
-				log.Println("close twitter ch")
-				close(ch)
-			}()
-			var c TwitterConfig
-			envconfig.Process("TWITTER", &c)
-			config := oauth1.NewConfig(c.ConsumerKey, c.ConsumerSecret)
-			token := oauth1.NewToken(c.AccessToken, c.AccessTokenSecret)
-			httpClient := config.Client(oauth1.NoContext, token)
-
-			client := twitter.NewClient(httpClient)
-
-			demux := twitter.NewSwitchDemux()
-			demux.Tweet = func(tweet *twitter.Tweet) {
-				if tweet.RetweetedStatus != nil {
-					return
-				}
-				fmt.Println(fmt.Sprintf("%s\n", tweet.Text))
-				ch <- tweet
-			}
-
-			filterParams := &twitter.StreamFilterParams{Track: []string{req.GetHashTag()}}
-			twitterStream, err := client.Streams.Filter(filterParams)
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer twitterStream.Stop()
-
-			go demux.HandleChan(twitterStream.Messages)
-			<-done
-			return
-		}()
-
-		return ch
-	}
-
 	done := make(chan interface{})
-	tc := twitterCh(done)
+	tc := generateTwitchCh(done, req)
 	for {
 		select {
 		case msg := <-tc:
@@ -75,6 +36,45 @@ func (s *timelineService) Connect(req *pb.Room, stream pb.Timeline_ConnectServer
 			}
 		}
 	}
+}
+
+func generateTwitchCh(done <-chan interface{}, req *pb.Room) <-chan *twitter.Tweet {
+	ch := make(chan *twitter.Tweet)
+	go func() {
+		defer func() {
+			log.Println("close twitter ch")
+			close(ch)
+		}()
+		var c TwitterConfig
+		envconfig.Process("TWITTER", &c)
+		config := oauth1.NewConfig(c.ConsumerKey, c.ConsumerSecret)
+		token := oauth1.NewToken(c.AccessToken, c.AccessTokenSecret)
+		httpClient := config.Client(oauth1.NoContext, token)
+
+		client := twitter.NewClient(httpClient)
+
+		demux := twitter.NewSwitchDemux()
+		demux.Tweet = func(tweet *twitter.Tweet) {
+			if tweet.RetweetedStatus != nil {
+				return
+			}
+			fmt.Println(fmt.Sprintf("%s\n", tweet.Text))
+			ch <- tweet
+		}
+
+		filterParams := &twitter.StreamFilterParams{Track: []string{req.GetHashTag()}}
+		twitterStream, err := client.Streams.Filter(filterParams)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer twitterStream.Stop()
+
+		go demux.HandleChan(twitterStream.Messages)
+		<-done
+		return
+	}()
+
+	return ch
 }
 
 func main() {
