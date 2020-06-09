@@ -19,6 +19,14 @@ const helloworld = protoDescriptor.helloworld
 
 /**
  * @param {!Object} call
+ * @param {function():?} callback
+ */
+function doSayHello(call, callback) {
+    callback(null, {message: 'Hello! '+ call.request.name});
+}
+
+/**
+ * @param {!Object} call
  */
 function doSayRepeatHello(call) {
     const senders = [];
