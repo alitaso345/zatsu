@@ -1,7 +1,7 @@
-FROM node:10.12.0-slim
+FROM node:12
 
 WORKDIR /client
 COPY . .
 RUN yarn install
-CMD ["yarn", "start"]
 EXPOSE 3000
+CMD yarn start
