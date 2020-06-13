@@ -1,26 +1,34 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react'
+
+import { HelloRequest } from './helloworld/helloworld_pb'
+import { GreeterClient } from './helloworld/HelloworldServiceClientPb'
 
 function App() {
+  const [inputText, setInputText] = useState("World")
+  const [message, setMessage] = useState("")
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <input
+        type="text"
+        value={inputText}
+        onChange={(e) => setInputText(e.target.value)}
+      />
+      <button onClick={() => {
+        const request = new HelloRequest();
+        request.setName(inputText)
+
+        const client = new GreeterClient("http://localhost:8080", {}, {})
+        client.sayHello(request, {}, (err, res) => {
+          if (err || res === null) {
+            throw err;
+          }
+          setMessage(res.getMessage)
+        })
+      }}>Send</button>
+      <p>{message}</p>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
