@@ -23,7 +23,7 @@ function App() {
           if (err || res === null) {
             throw err;
           }
-          setMessage(res.getMessage)
+          setMessage(res.getMessage())
         })
       }}>Send</button>
       <p>{message}</p>
