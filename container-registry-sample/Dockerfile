@@ -10,7 +10,7 @@ COPY . ./
 RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o server
 
 FROM alpine:3
-RUN apk ad --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates
 
 COPY --from=builder /app/server /server
 
