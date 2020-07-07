@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -15,13 +16,18 @@ func main() {
 	}
 	defer db.Close()
 
-	result, err := db.Exec(`insert into users(name, age) values('Bob', 18)`)
+	rows, err := db.Query(`select id, name, age from users order by age desc`)
 	if err != nil {
 		log.Fatal(err)
 	}
-	affected, err := result.RowsAffected()
-	if err != nil {
-		log.Fatal(err)
+	for rows.Next() {
+		var id int64
+		var name string
+		var age int64
+		err = rows.Scan(&id, &name, &age)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(id, name, age)
 	}
-	log.Printf("ID: %v", affected)
 }
