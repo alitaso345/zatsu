@@ -15,8 +15,13 @@ func main() {
 	}
 	defer db.Close()
 
-	err = db.Ping()
+	result, err := db.Exec(`insert into users(name, age) values('Bob', 18)`)
 	if err != nil {
 		log.Fatal(err)
 	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("ID: %v", affected)
 }
