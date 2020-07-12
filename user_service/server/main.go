@@ -8,6 +8,7 @@ import (
 	"time"
 
 	pb "github.com/alitaso345/zatsu/user_service/proto"
+	"github.com/golang/protobuf/ptypes/empty"
 	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/grpc"
 	"gopkg.in/gorp.v2"
@@ -26,6 +27,19 @@ func (service *UserService) CreateUser(ctx context.Context, request *pb.NewUserR
 
 	user := pb.User{Id: 1, Name: request.Name}
 	return &pb.UserResponse{User: &user}, nil
+}
+
+func (service *UserService) GetUsers(ctx context.Context, empty *empty.Empty) (*pb.UsersResponse, error) {
+	var users []User
+	_, err := dbmap.Select(&users, "select * from users order by user_id")
+	errorHandler(err, "Select failed")
+
+	var pbUsers []*pb.User
+	for _, u := range users {
+		user := pb.User{Id: u.Id, Name: u.Name}
+		pbUsers = append(pbUsers, &user)
+	}
+	return &pb.UsersResponse{Users: pbUsers}, nil
 }
 
 func main() {
