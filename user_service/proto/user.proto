@@ -1,7 +1,12 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
+option go_package = ".;proto";
+
 service UserService {
     rpc CreateUser(NewUserRequest) returns(UserResponse) {}
+    rpc GetUsers(google.protobuf.Empty) returns(UsersResponse) {}
 }
 
 message NewUserRequest {
@@ -15,4 +20,8 @@ message User {
 
 message UserResponse {
     User user = 1;
+}
+
+message UsersResponse {
+    repeated User users = 1;
 }
