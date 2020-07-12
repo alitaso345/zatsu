@@ -16,75 +16,53 @@ func main() {
 	err := dbmap.TruncateTables()
 	checkError(err, "TruncateTables failed")
 
-	p1 := newPost("Go 1.1 released!", "Lorem ipsum lorem ipsum")
-	p2 := newPost("Go 1.2 released!", "hoge piyo huga")
+	// create new users
+	user1 := newUser("alitaso346")
+	user2 := newUser("xin")
+	user3 := newUser("beatrooper")
+	user4 := newUser("niya")
 
-	err = dbmap.Insert(&p1, &p2)
+	// insert rows
+	err = dbmap.Insert(&user1, &user2, &user3, &user4)
 	checkError(err, "Insert failed")
 
-	// use convenience SelectInt
-	count, err := dbmap.SelectInt("select count(*) from posts")
-	checkError(err, "select count(*), failed")
-	log.Println("Rows after inserting:", count)
-
 	// update a row
-	p2.Title = "Go 1.2 is better than ever"
-	count, err = dbmap.Update(&p2)
+	user1.Name = "きこーだ"
+	user4.Name = "DJ NIi-ya"
+	_, err = dbmap.Update(&user1, &user4)
 	checkError(err, "Update failed")
-	log.Println("Rows updated:", count)
-
-	// fetch one row
-	err = dbmap.SelectOne(&p2, "select * from posts where post_id=?", p2.Id)
-	checkError(err, "SelectOne failed")
-	log.Println("p2 row:", p2)
 
 	// fetch all rows
-	var posts []Post
-	_, err = dbmap.Select(&posts, "select * from posts order by post_id")
-	checkError(err, "select failed")
-	log.Println("All rows:")
-	for x, p := range posts {
-		log.Printf(" %d: %v\n", x, p)
+	var users []User
+	_, err = dbmap.Select(&users, "select * from users order by user_id")
+	checkError(err, "Select failed")
+	log.Println("All artists...")
+	for i, u := range users {
+		log.Printf("%d: %s\n", i, u.Name)
 	}
-
-	// delete row by PK
-	count, err = dbmap.Delete(&p1)
-	checkError(err, "Delete failed")
-	log.Println("Rows deleted:", count)
-
-	// delete row manually via Exec
-	_, err = dbmap.Exec("delete from posts where post_id=?", p2.Id)
-	checkError(err, "Exec failed")
-
-	//confirm count is zero
-	count, err = dbmap.SelectInt("select count(*) from posts")
-	checkError(err, "select count(*) failed")
-	log.Println("Row count - should be zero:", count)
 
 	log.Println("Done!")
 }
 
-func newPost(title string, body string) Post {
-	return Post{
+func newUser(name string) User {
+	return User{
 		Created: time.Now().UnixNano(),
-		Title:   title,
-		Body:    body,
+		Name:    name,
 	}
 }
 
-type Post struct {
-	Id      int64 `db:"post_id"`
+type User struct {
+	Id      int64 `db:"user_id"`
 	Created int64
-	Title   string `db:",size:50"`
-	Body    string `db:"article_body,size:1024"`
+	Name    string `db:",size:50"`
 }
 
 func initDb() *gorp.DbMap {
-	db, err := sql.Open("sqlite3", "./tmp/post_db.bin")
+	db, err := sql.Open("sqlite3", "./tmp/user_db.bin")
 	checkError(err, "sql.Open failed")
 
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.SqliteDialect{}}
-	dbmap.AddTableWithName(Post{}, "posts").SetKeys(true, "Id")
+	dbmap.AddTableWithName(User{}, "users").SetKeys(true, "Id")
 
 	err = dbmap.CreateTablesIfNotExists()
 	checkError(err, "Create tables failed")
