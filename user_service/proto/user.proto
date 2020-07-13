@@ -7,15 +7,20 @@ option go_package = ".;proto";
 service UserService {
     rpc CreateUser(NewUserRequest) returns(UserResponse) {}
     rpc GetUsers(google.protobuf.Empty) returns(UsersResponse) {}
+    rpc UpdateUser(UpdateUserRequest) returns(UserResponse) {}
+}
+
+message User {
+    int64 id = 1;
+    string name = 2;
 }
 
 message NewUserRequest {
     string name = 1;
 }
 
-message User {
-    int64 id = 1;
-    string name = 2;
+message UpdateUserRequest {
+    User user = 1;
 }
 
 message UserResponse {

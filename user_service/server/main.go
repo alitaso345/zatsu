@@ -42,6 +42,16 @@ func (service *UserService) GetUsers(ctx context.Context, empty *empty.Empty) (*
 	return &pb.UsersResponse{Users: pbUsers}, nil
 }
 
+func (service *UserService) UpdateUser(ctx context.Context, request *pb.UpdateUserRequest) (*pb.UserResponse, error) {
+	var user User
+	user = User{Id: request.User.Id, Name: request.User.Name}
+	_, err := dbmap.Update(&user)
+	errorHandler(err, "Update failed")
+
+	pbUser := pb.User{Id: request.User.Id, Name: request.User.Name}
+	return &pb.UserResponse{User: &pbUser}, nil
+}
+
 func main() {
 	dbmap = initDb()
 	defer dbmap.Db.Close()
