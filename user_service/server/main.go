@@ -29,6 +29,15 @@ func (service *UserService) CreateUser(ctx context.Context, request *pb.NewUserR
 	return &pb.UserResponse{User: &user}, nil
 }
 
+func (service *UserService) GetUser(ctx context.Context, request *pb.GetUserRequest) (*pb.UserResponse, error) {
+	var user User
+	err := dbmap.SelectOne(&user, "select * from users where name = ? order by user_id desc", request.Name)
+	errorHandler(err, "SelectOne failed")
+
+	pbUser := pb.User{Id: user.Id, Name: user.Name}
+	return &pb.UserResponse{User: &pbUser}, nil
+}
+
 func (service *UserService) GetUsers(ctx context.Context, empty *empty.Empty) (*pb.UsersResponse, error) {
 	var users []User
 	_, err := dbmap.Select(&users, "select * from users order by user_id")

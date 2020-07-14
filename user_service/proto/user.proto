@@ -6,6 +6,7 @@ option go_package = ".;proto";
 
 service UserService {
     rpc CreateUser(NewUserRequest) returns(UserResponse) {}
+    rpc GetUser(GetUserRequest) returns(UserResponse){}
     rpc GetUsers(google.protobuf.Empty) returns(UsersResponse) {}
     rpc UpdateUser(UpdateUserRequest) returns(UserResponse) {}
 }
@@ -13,6 +14,10 @@ service UserService {
 message User {
     int64 id = 1;
     string name = 2;
+}
+
+message GetUserRequest {
+    string name = 1;
 }
 
 message NewUserRequest {
