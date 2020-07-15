@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:8080", grpc.WithInsecure(), grpc.WithBlock())
 	errorHandler(err, "failed connection")
 	defer conn.Close()
 
@@ -21,14 +21,14 @@ func main() {
 	defer cancel()
 
 	if len(os.Args) < 2 {
-		log.Fatalln("Input new name")
+		log.Fatalln("Input user name")
 	}
-	newName := os.Args[1]
-	user := pb.User{Id: 1, Name: newName}
-	res, err := client.UpdateUser(ctx, &pb.UpdateUserRequest{User: &user})
+	name := os.Args[1]
+	res, err := client.GetUser(ctx, &pb.GetUserRequest{Name: name})
 	errorHandler(err, "failed to create user")
 
 	log.Printf("ID: %d, NAME: %s\n", res.User.Id, res.User.Name)
+
 }
 
 func errorHandler(err error, msg string) {

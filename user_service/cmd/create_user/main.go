@@ -10,25 +10,27 @@ import (
 	"google.golang.org/grpc"
 )
 
+const (
+	defaultName = "alitaso345"
+)
+
 func main() {
-	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:8080", grpc.WithInsecure(), grpc.WithBlock())
 	errorHandler(err, "failed connection")
 	defer conn.Close()
 
 	client := pb.NewUserServiceClient(conn)
 
+	name := defaultName
+	if len(os.Args) > 1 {
+		name = os.Args[1]
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-
-	if len(os.Args) < 2 {
-		log.Fatalln("Input user name")
-	}
-	name := os.Args[1]
-	res, err := client.GetUser(ctx, &pb.GetUserRequest{Name: name})
+	res, err := client.CreateUser(ctx, &pb.NewUserRequest{Name: name})
 	errorHandler(err, "failed to create user")
 
 	log.Printf("ID: %d, NAME: %s\n", res.User.Id, res.User.Name)
-
 }
 
 func errorHandler(err error, msg string) {

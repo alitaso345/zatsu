@@ -3,15 +3,15 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"time"
 
 	pb "github.com/alitaso345/zatsu/user_service/proto"
-	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:8080", grpc.WithInsecure(), grpc.WithBlock())
 	errorHandler(err, "failed connection")
 	defer conn.Close()
 
@@ -19,12 +19,16 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	res, err := client.GetUsers(ctx, &empty.Empty{})
+
+	if len(os.Args) < 2 {
+		log.Fatalln("Input new name")
+	}
+	newName := os.Args[1]
+	user := pb.User{Id: 1, Name: newName}
+	res, err := client.UpdateUser(ctx, &pb.UpdateUserRequest{User: &user})
 	errorHandler(err, "failed to create user")
 
-	for _, user := range res.Users {
-		log.Printf("ID: %d, NAME: %s\n", user.Id, user.Name)
-	}
+	log.Printf("ID: %d, NAME: %s\n", res.User.Id, res.User.Name)
 }
 
 func errorHandler(err error, msg string) {
