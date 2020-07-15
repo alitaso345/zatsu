@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: ./docker/proxy.Dockerfile
+    ports:
+      - "8080:8080"
+      - "9901:9901"
+    links:
+      - server
+    container_name: user-service-proxy
+
+  server:
+    build:
+      context: .
+      dockerfile: ./docker/server.Dockerfile
+    volumes:
+      - ./:/app/
+    ports:
+      - "9000:9000"
+    container_name: user-service-server
