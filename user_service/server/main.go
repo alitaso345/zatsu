@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	pb "github.com/alitaso345/zatsu/user_service/proto"
@@ -65,7 +66,11 @@ func main() {
 	dbmap = initDb()
 	defer dbmap.Db.Close()
 
-	lis, err := net.Listen("tcp", ":5051")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "9000"
+	}
+	lis, err := net.Listen("tcp", ":"+port)
 	errorHandler(err, "failed to listen")
 
 	server := grpc.NewServer()
@@ -75,7 +80,7 @@ func main() {
 }
 
 func initDb() *gorp.DbMap {
-	db, err := sql.Open("sqlite3", "./user_db.bin")
+	db, err := sql.Open("sqlite3", "./server/user_db.bin")
 	errorHandler(err, "sql.Open failed")
 
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.SqliteDialect{}}

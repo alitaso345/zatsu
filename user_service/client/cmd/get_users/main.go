@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:5051", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure(), grpc.WithBlock())
 	errorHandler(err, "failed connection")
 	defer conn.Close()
 
