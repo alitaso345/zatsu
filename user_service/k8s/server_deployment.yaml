@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-server
+spec:
+  selector:
+    matchLabels:
+      app: user-service-server
+  template:
+    metadata:
+      labels:
+        app: user-service-server
+    spec:
+      containers:
+        - name: server
+          image: gcr.io/zatsu-280923/user-service-server
+          ports:
+            - containerPort: 9000
