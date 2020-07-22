@@ -20,3 +20,13 @@ services:
     ports:
       - "9000:9000"
     container_name: user-service-server
+
+  client:
+    build:
+      context: .
+      dockerfile: ./docker/client.Dockerfile
+    volumes:
+      - ./client:/client/
+    ports:
+      - "3000:3000"
+    container_name: user-service-client
