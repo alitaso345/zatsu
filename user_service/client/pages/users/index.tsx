@@ -2,12 +2,9 @@ import { useEffect, useState } from 'react'
 import { User } from 'proto/user_pb'
 import { UserServiceClient } from 'proto/UserServiceClientPb'
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb'
+import { apiEndpoint } from 'resources/constants'
 
 const Users: React.FC = () => {
-  const apiEndpoint =
-    process.env.NODE_ENV === 'development'
-      ? 'http://localhost:8080'
-      : 'http://' + window.location.host
   const [users, setUsers] = useState<Array<User>>([])
 
   useEffect(() => {
