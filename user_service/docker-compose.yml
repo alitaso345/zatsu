@@ -14,8 +14,8 @@ services:
   server:
     build:
       context: .
-#      dockerfile: ./docker/server.development.Dockerfile
-      dockerfile: ./docker/server.Dockerfile
+      dockerfile: ./docker/server.development.Dockerfile
+#      dockerfile: ./docker/server.Dockerfile
     volumes:
       - ./:/app/
     ports:

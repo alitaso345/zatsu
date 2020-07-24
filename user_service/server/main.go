@@ -18,6 +18,9 @@ import (
 
 var dbmap *gorp.DbMap
 
+const defaultTwitterHashTag = "#某isNight"
+const defaultTwitchChannel = "#bou_is_twitch"
+
 type UserService struct {
 	pb.UnimplementedUserServiceServer
 }
@@ -27,7 +30,7 @@ func (service *UserService) CreateUser(ctx context.Context, request *pb.NewUserR
 	err := dbmap.Insert(&new)
 	errorHandler(err, "Insert failed")
 
-	user := pb.User{Id: 1, Name: request.Name}
+	user := pb.User{Id: 1, Name: new.Name, TwitterHashTag: new.TwitterHashTag, TwitchChannel: new.TwitchChannel}
 	return &pb.UserResponse{User: &user}, nil
 }
 
@@ -39,7 +42,7 @@ func (service *UserService) GetUser(ctx context.Context, request *pb.GetUserRequ
 		return &pb.UserResponse{User: nil}, fmt.Errorf("Not Found %s", request.Name)
 	}
 
-	pbUser := pb.User{Id: user.Id, Name: user.Name}
+	pbUser := pb.User{Id: user.Id, Name: user.Name, TwitterHashTag: user.TwitterHashTag, TwitchChannel: user.TwitterHashTag}
 	return &pb.UserResponse{User: &pbUser}, nil
 }
 
@@ -50,7 +53,7 @@ func (service *UserService) GetUsers(ctx context.Context, empty *empty.Empty) (*
 
 	var pbUsers []*pb.User
 	for _, u := range users {
-		user := pb.User{Id: u.Id, Name: u.Name}
+		user := pb.User{Id: u.Id, Name: u.Name, TwitterHashTag: u.TwitterHashTag, TwitchChannel: u.TwitchChannel}
 		pbUsers = append(pbUsers, &user)
 	}
 	return &pb.UsersResponse{Users: pbUsers}, nil
@@ -58,11 +61,11 @@ func (service *UserService) GetUsers(ctx context.Context, empty *empty.Empty) (*
 
 func (service *UserService) UpdateUser(ctx context.Context, request *pb.UpdateUserRequest) (*pb.UserResponse, error) {
 	var user User
-	user = User{Id: request.User.Id, Name: request.User.Name}
+	user = User{Id: request.User.Id, Name: request.User.Name, TwitterHashTag: request.User.TwitterHashTag, TwitchChannel: request.User.TwitchChannel}
 	_, err := dbmap.Update(&user)
 	errorHandler(err, "Update failed")
 
-	pbUser := pb.User{Id: request.User.Id, Name: request.User.Name}
+	pbUser := pb.User{Id: user.Id, Name: user.Name, TwitterHashTag: user.TwitterHashTag, TwitchChannel: user.TwitchChannel}
 	return &pb.UserResponse{User: &pbUser}, nil
 }
 
@@ -97,15 +100,19 @@ func initDb() *gorp.DbMap {
 }
 
 type User struct {
-	Id      int64  `db:"user_id"`
-	Name    string `db:",size:50"`
-	Created int64
+	Id             int64  `db:"user_id"`
+	Name           string `db:",size:50"`
+	TwitterHashTag string `db:",size:50"`
+	TwitchChannel  string `db:",size:50"`
+	Created        int64
 }
 
 func newUser(name string) User {
 	return User{
-		Name:    name,
-		Created: time.Now().UnixNano(),
+		Name:           name,
+		TwitterHashTag: defaultTwitterHashTag,
+		TwitchChannel:  defaultTwitchChannel,
+		Created:        time.Now().UnixNano(),
 	}
 }
 

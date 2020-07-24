@@ -27,7 +27,7 @@ func main() {
 	res, err := client.GetUser(ctx, &pb.GetUserRequest{Name: name})
 	errorHandler(err, "failed to create user")
 
-	log.Printf("ID: %d, NAME: %s\n", res.User.Id, res.User.Name)
+	log.Printf("ID: %d, NAME: %s, TWITTER_HASH_TAG: %s, TWITCH_CHANNEL: %s\n", res.User.Id, res.User.Name, res.User.TwitterHashTag, res.User.TwitchChannel)
 
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	conn, err := grpc.Dial("34.82.19.151:8080", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:8080", grpc.WithInsecure(), grpc.WithBlock())
 	errorHandler(err, "failed connection")
 	defer conn.Close()
 
@@ -23,7 +23,7 @@ func main() {
 	errorHandler(err, "failed to create user")
 
 	for _, user := range res.Users {
-		log.Printf("ID: %d, NAME: %s\n", user.Id, user.Name)
+		log.Printf("ID: %d, NAME: %s, TWITTER_HASH_TAG: %s, TWITCH_CHANNEL: %s\n", user.Id, user.Name, user.TwitterHashTag, user.TwitchChannel)
 	}
 }
 

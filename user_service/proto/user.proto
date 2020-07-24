@@ -14,6 +14,8 @@ service UserService {
 message User {
     int64 id = 1;
     string name = 2;
+    string twitterHashTag = 3;
+    string twitchChannel = 4;
 }
 
 message GetUserRequest {
