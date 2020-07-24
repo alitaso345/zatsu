@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -34,6 +35,9 @@ func (service *UserService) GetUser(ctx context.Context, request *pb.GetUserRequ
 	var user User
 	err := dbmap.SelectOne(&user, "select * from users where name = ? order by user_id desc", request.Name)
 	errorHandler(err, "SelectOne failed")
+	if err != nil {
+		return &pb.UserResponse{User: nil}, fmt.Errorf("Not Found %s", request.Name)
+	}
 
 	pbUser := pb.User{Id: user.Id, Name: user.Name}
 	return &pb.UserResponse{User: &pbUser}, nil
@@ -106,6 +110,6 @@ func newUser(name string) User {
 
 func errorHandler(err error, msg string) {
 	if err != nil {
-		log.Fatalln(err, msg)
+		log.Println(err, msg)
 	}
 }
