@@ -8,3 +8,5 @@ generate-go:
 generate-ts:
 	protoc -I./proto/ ./proto/user.proto --js_out=import_style=commonjs:./proto \
 		   --grpc-web_out=import_style=typescript,mode=grpcwebtext:./proto
+	cp ./proto/*.js ./client/proto/
+	cp ./proto/*.ts ./client/proto/
