@@ -67,6 +67,7 @@ func (service *UserService) UpdateUser(ctx context.Context, request *pb.UpdateUs
 }
 
 func main() {
+	log.Println("start server...")
 	dbmap = initDb()
 	defer dbmap.Db.Close()
 
@@ -84,7 +85,7 @@ func main() {
 }
 
 func initDb() *gorp.DbMap {
-	db, err := sql.Open("sqlite3", "./server/user_db.bin")
+	db, err := sql.Open("sqlite3", "./user_db.bin")
 	errorHandler(err, "sql.Open failed")
 
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.SqliteDialect{}}

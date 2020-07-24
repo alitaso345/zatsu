@@ -8,5 +8,6 @@ FROM scratch
 COPY --from=builder /app/user-server ./server/
 COPY --from=builder /app/server/user_db.bin ./server/
 
-ENTRYPOINT ["./server/user-server"]
+WORKDIR ./server/
+ENTRYPOINT ["./user-server"]
 EXPOSE 9000
