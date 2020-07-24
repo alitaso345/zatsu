@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
+import { NextPage } from 'next'
 import { User } from 'proto/user_pb'
 import { UserServiceClient } from 'proto/UserServiceClientPb'
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb'
 import { apiEndpoint } from 'resources/constants'
 
-const Users: React.FC = () => {
+const UsersPage: NextPage = () => {
   const [users, setUsers] = useState<Array<User>>([])
 
   useEffect(() => {
@@ -30,4 +31,4 @@ const Users: React.FC = () => {
   )
 }
 
-export default Users
+export default UsersPage
