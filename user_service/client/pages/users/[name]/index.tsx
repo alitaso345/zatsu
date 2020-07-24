@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { NextPage } from 'next'
-import { useRouter } from 'next/router'
 import { User, GetUserRequest } from 'proto/user_pb'
 import { UserServiceClient } from 'proto/UserServiceClientPb'
 import { apiEndpoint } from 'resources/constants'
@@ -26,10 +25,14 @@ const UserPage: NextPage<Props> = ({ name }) => {
     })
   }, [])
 
-  return user ? (
-    <div>Name: {user.getName()}</div>
-  ) : (
-    <div>Not Found User {name}</div>
+  return (
+    user && (
+      <>
+        <div>Name: {user.getName()}</div>
+        <div>Twitterハッシュタグ: {user.getTwitterhashtag()}</div>
+        <div>Twitchチャンネル: {user.getTwitchchannel()}</div>
+      </>
+    )
   )
 }
 

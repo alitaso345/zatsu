@@ -9,6 +9,12 @@ export class User extends jspb.Message {
   getName(): string
   setName(value: string): User
 
+  getTwitterhashtag(): string
+  setTwitterhashtag(value: string): User
+
+  getTwitchchannel(): string
+  setTwitchchannel(value: string): User
+
   serializeBinary(): Uint8Array
   toObject(includeInstance?: boolean): User.AsObject
   static toObject(includeInstance: boolean, msg: User): User.AsObject
@@ -24,6 +30,8 @@ export namespace User {
   export type AsObject = {
     id: number
     name: string
+    twitterhashtag: string
+    twitchchannel: string
   }
 }
 

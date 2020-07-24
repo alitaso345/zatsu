@@ -179,7 +179,9 @@ proto.User.prototype.toObject = function(opt_includeInstance) {
 proto.User.toObject = function(includeInstance, msg) {
   var f, obj = {
     id: jspb.Message.getFieldWithDefault(msg, 1, 0),
-    name: jspb.Message.getFieldWithDefault(msg, 2, "")
+    name: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    twitterhashtag: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    twitchchannel: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -224,6 +226,14 @@ proto.User.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setName(value);
       break;
+    case 3:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTwitterhashtag(value);
+      break;
+    case 4:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setTwitchchannel(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -267,6 +277,20 @@ proto.User.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
+  f = message.getTwitterhashtag();
+  if (f.length > 0) {
+    writer.writeString(
+      3,
+      f
+    );
+  }
+  f = message.getTwitchchannel();
+  if (f.length > 0) {
+    writer.writeString(
+      4,
+      f
+    );
+  }
 };
 
 
@@ -303,6 +327,42 @@ proto.User.prototype.getName = function() {
  */
 proto.User.prototype.setName = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
+};
+
+
+/**
+ * optional string twitterHashTag = 3;
+ * @return {string}
+ */
+proto.User.prototype.getTwitterhashtag = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.User} returns this
+ */
+proto.User.prototype.setTwitterhashtag = function(value) {
+  return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string twitchChannel = 4;
+ * @return {string}
+ */
+proto.User.prototype.getTwitchchannel = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.User} returns this
+ */
+proto.User.prototype.setTwitchchannel = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 

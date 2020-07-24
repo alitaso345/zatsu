@@ -42,7 +42,7 @@ func (service *UserService) GetUser(ctx context.Context, request *pb.GetUserRequ
 		return &pb.UserResponse{User: nil}, fmt.Errorf("Not Found %s", request.Name)
 	}
 
-	pbUser := pb.User{Id: user.Id, Name: user.Name, TwitterHashTag: user.TwitterHashTag, TwitchChannel: user.TwitterHashTag}
+	pbUser := pb.User{Id: user.Id, Name: user.Name, TwitterHashTag: user.TwitterHashTag, TwitchChannel: user.TwitchChannel}
 	return &pb.UserResponse{User: &pbUser}, nil
 }
 
