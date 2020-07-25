@@ -39,6 +39,7 @@ func (service *UserService) GetUser(ctx context.Context, request *pb.GetUserRequ
 	err := dbmap.SelectOne(&user, "select * from users where name = ? order by user_id desc", request.Name)
 	errorHandler(err, "SelectOne failed")
 	if err != nil {
+		log.Printf("Not Found %s", request.Name)
 		return &pb.UserResponse{User: nil}, fmt.Errorf("Not Found %s", request.Name)
 	}
 
@@ -63,7 +64,10 @@ func (service *UserService) UpdateUser(ctx context.Context, request *pb.UpdateUs
 	var user User
 	user = User{Id: request.User.Id, Name: request.User.Name, TwitterHashTag: request.User.TwitterHashTag, TwitchChannel: request.User.TwitchChannel}
 	_, err := dbmap.Update(&user)
-	errorHandler(err, "Update failed")
+	if err != nil {
+		log.Printf("Update failed %s", request.User.Name)
+		return &pb.UserResponse{User: nil}, fmt.Errorf("Update failed %s", request.User.Name)
+	}
 
 	pbUser := pb.User{Id: user.Id, Name: user.Name, TwitterHashTag: user.TwitterHashTag, TwitchChannel: user.TwitchChannel}
 	return &pb.UserResponse{User: &pbUser}, nil

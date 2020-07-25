@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import Router from 'next/router'
 import { useCallback, useEffect, useState } from 'react'
-import { User, GetUserRequest } from 'proto/user_pb'
+import { GetUserRequest, UpdateUserRequest, User } from 'proto/user_pb'
 import { UserServiceClient } from 'proto/UserServiceClientPb'
 import { apiEndpoint } from 'resources/constants'
 
@@ -9,6 +9,7 @@ type Props = {
   name: string
 }
 const UserEdit: NextPage<Props> = ({ name }) => {
+  const [user, setUser] = useState<User>(null)
   const [twitterHashTag, setTwitterHashTag] = useState('')
   const [twitchChannel, setTwitchChannel] = useState('')
 
@@ -21,15 +22,32 @@ const UserEdit: NextPage<Props> = ({ name }) => {
         return
       }
 
-      const user = res.getUser()
-      setTwitterHashTag(user.getTwitterhashtag())
-      setTwitchChannel(user.getTwitchchannel())
+      setUser(res.getUser())
+      setTwitterHashTag(res.getUser().getTwitterhashtag())
+      setTwitchChannel(res.getUser().getTwitchchannel())
     })
   }, [])
 
   const submitUpdate = useCallback(() => {
-    Router.push('/users/[name]', `/users/${name}`)
-  }, [])
+    const userServiceClient = new UserServiceClient(apiEndpoint)
+    const request = new UpdateUserRequest()
+    const updatedUser = new User()
+    updatedUser.setId(user.getId())
+    updatedUser.setName(user.getName())
+    updatedUser.setTwitterhashtag(twitterHashTag)
+    updatedUser.setTwitchchannel(twitchChannel)
+    request.setUser(updatedUser)
+
+    userServiceClient.updateUser(request, {}, (err, res) => {
+      if (err) {
+        alert('設定の更新に失敗しました')
+        return
+      }
+
+      alert('設定を更新しました')
+      Router.push('/users/[name]', `/users/${res.getUser().getName()}`)
+    })
+  }, [user, twitterHashTag, twitchChannel])
 
   return (
     <>
