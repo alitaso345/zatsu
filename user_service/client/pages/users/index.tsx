@@ -18,11 +18,13 @@ const UsersIndexPage: NextPage = () => {
 
   return (
     <>
-      <h1>Users List</h1>
+      <h1>ユーザー一覧</h1>
       {users.map((user, index) => {
         return (
           <div key={index}>
-            <div>{user.getName()}</div>
+            <div>
+              <a href={`/users/${user.getName()}`}>{user.getName()}</a>
+            </div>
           </div>
         )
       })}

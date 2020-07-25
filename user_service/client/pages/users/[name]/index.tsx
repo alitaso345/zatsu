@@ -28,9 +28,18 @@ const UserPage: NextPage<Props> = ({ name }) => {
   return (
     user && (
       <>
+        <h1>ユーザー詳細</h1>
         <div>Name: {user.getName()}</div>
         <div>Twitterハッシュタグ: {user.getTwitterhashtag()}</div>
         <div>Twitchチャンネル: {user.getTwitchchannel()}</div>
+
+        <div>
+          <a href={`/users/${name}/edit`}>設定編集</a>
+        </div>
+
+        <div>
+          <a href={`/users`}>ユーザー一覧</a>
+        </div>
       </>
     )
   )
