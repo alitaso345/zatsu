@@ -1,0 +1,36 @@
+<%= form_with(model: post, id: dom_id(post)) do |form| %>
+  <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">New Post</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+
+  <div class="modal-body">
+    <% if post.errors.any? %>
+      <div style="color: red">
+        <h2><%= pluralize(post.errors.count, "error") %> prohibited this post from being saved:</h2>
+
+        <ul>
+          <% post.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="form-group">
+      <%= form.label :title, style: "display: block" %>
+      <%= form.text_field :title, class: 'form-control'%>
+    </div>
+
+    <div class="form-group">
+      <%= form.label :body, style: "display: block" %>
+      <%= form.text_area :body, class: 'form-control' %>
+    </div>
+  </div>
+
+
+  <div class="modal-footer">
+    <%= form.submit class: 'btn btn-primary'%>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+  </div>
+<% end %>
