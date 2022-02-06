@@ -1,0 +1,6 @@
+<%= turbo_frame_tag('entry-likes') do %>
+  <div>
+    <%= link_to '♥', like_entry_path(@entry), data: {'turbo-method': 'patch'} %>
+    <%= @entry.likes_count %>
+  </div>
+<% end %>

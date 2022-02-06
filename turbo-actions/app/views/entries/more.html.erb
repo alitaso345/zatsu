@@ -1,0 +1,9 @@
+<%= turbo_stream.append('entries') do %>
+  <% @entries.each do |entry| %>
+    <%= render entry %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.replace('more-button') do %>
+ <%= render 'more_button' %>
+<% end %>

@@ -1,0 +1,7 @@
+<% if @offset + 3 < @entries_count %>
+  <%= turbo_frame_tag('more-button') do %>
+    <div>
+      <%= link_to('もっとみる', more_entries_path(offset: @offset + 3)) %>
+    </div>
+  <% end %>
+<% end %>

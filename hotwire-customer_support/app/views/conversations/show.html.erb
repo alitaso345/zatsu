@@ -1,0 +1,15 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @conversation %>
+
+<div>
+  <%= link_to "Edit this conversation", edit_conversation_path(@conversation) %> |
+  <%= link_to "Back to conversations", conversations_path %>
+
+  <%= button_to "Destroy this conversation", @conversation, method: :delete %>
+</div>
+
+<%= turbo_stream_from @conversation %>
+<div id="posts">
+  <%= render @posts %>
+</div>

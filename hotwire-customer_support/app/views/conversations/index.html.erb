@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<h1>Conversations</h1>
+
+<%= turbo_stream_from "conversations" %>
+<div id="conversations">
+  <%= render @conversations %>
+</div>
+
+<%= link_to "New conversation", new_conversation_path %>
