@@ -11,9 +11,7 @@ require (
 	github.com/poy/onpar v1.0.0 // indirect
 	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
-	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
-	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	google.golang.org/genproto v0.0.0-20200711021454-869866162049 // indirect
 	google.golang.org/grpc v1.30.0
 	google.golang.org/protobuf v1.25.0
